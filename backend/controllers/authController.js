@@ -62,6 +62,25 @@ const login = async (req, res) => {
     }
 };
 
+// @desc    Logout user
+// @route   POST /api/auth/logout
+// @access  Private
+const logout = async (req, res) => {
+    try {
+        res.json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({
+            error: {
+                code: 'SERVER_ERROR',
+                message: 'Error logging out',
+                details: [error.message]
+            }
+        });
+    }
+};
+
 module.exports = {
-    login
+    login,
+    logout
 };

@@ -23,7 +23,7 @@ router.route('/:id')
     .put(protect, authorize('admin'), updateUser)
     .delete(protect, authorize('admin'), deleteUser);
 
-// Manager routes
-router.get('/managers/:managerId/reportees', protect, authorize('manager', 'admin'), getReportees);
+// Manager routes - updated path
+router.get('/:managerId/reportees', protect, authorize('manager', 'admin'), getReportees);
 
 module.exports = router;
