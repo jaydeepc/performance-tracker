@@ -94,6 +94,29 @@ const createUser = async (req, res) => {
     }
 };
 
+const getUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users.map(user => ({
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            name: user.name,
+            email: user.email,
+            managerId: user.managerId,
+            department: user.department
+        })));
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                code: 'SERVER_ERROR',
+                message: 'Error fetching users',
+                details: [error.message]
+            }
+        });
+    }
+};
+
 const getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
@@ -126,8 +149,101 @@ const getUserById = async (req, res) => {
     }
 };
 
+const updateUser = async (req, res) => {
+    try {
+        const { username, role, name, email, managerId, department } = req.body;
+        
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                error: {
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
+                    details: ['No user found with this ID']
+                }
+            });
+        }
+
+        // Check if new email/username is already taken by another user
+        if (username || email) {
+            const existingUser = await User.findOne({
+                _id: { $ne: req.params.id },
+                $or: [
+                    { username: username || user.username },
+                    { email: email || user.email }
+                ]
+            });
+            if (existingUser) {
+                return res.status(400).json({
+                    error: {
+                        code: 'USER_EXISTS',
+                        message: 'Username or email already taken',
+                        details: ['Please choose a different username or email']
+                    }
+                });
+            }
+        }
+
+        user.username = username || user.username;
+        user.role = role || user.role;
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.managerId = managerId || user.managerId;
+        user.department = department || user.department;
+
+        await user.save();
+
+        res.json({
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            name: user.name,
+            email: user.email,
+            managerId: user.managerId,
+            department: user.department
+        });
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                code: 'SERVER_ERROR',
+                message: 'Error updating user',
+                details: [error.message]
+            }
+        });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({
+                error: {
+                    code: 'NOT_FOUND',
+                    message: 'User not found',
+                    details: ['No user found with this ID']
+                }
+            });
+        }
+
+        await user.deleteOne();
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({
+            error: {
+                code: 'SERVER_ERROR',
+                message: 'Error deleting user',
+                details: [error.message]
+            }
+        });
+    }
+};
+
 module.exports = {
     createUser,
+    getUsers,
+    getUserById,
     getReportees,
-    getUserById
+    updateUser,
+    deleteUser
 };
