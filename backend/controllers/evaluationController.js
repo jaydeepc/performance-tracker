@@ -93,6 +93,13 @@ const getEvaluationsByUserId = async (req, res) => {
             .populate('userId', 'name email')
             .sort('-createdAt');
 
+        console.log('Evaluations found:', evaluations);
+
+        // If no evaluations found, return empty array
+        if (!evaluations || evaluations.length === 0) {
+            return res.json([]);
+        }
+
         res.json(evaluations);
     } catch (error) {
         res.status(500).json({

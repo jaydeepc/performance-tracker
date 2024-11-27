@@ -77,8 +77,8 @@ const Dashboard = () => {
   const latestEvaluation = evaluationHistory[0];
   const previousEvaluation = evaluationHistory[1];
 
-  const getScoreTrend = (current: number, previous: number) => {
-    if (!previous) return null;
+  const getScoreTrend = (current?: number, previous?: number) => {
+    if (typeof current !== 'number' || typeof previous !== 'number') return null;
     const difference = current - previous;
     return {
       value: Math.abs(difference).toFixed(1),
@@ -119,42 +119,45 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 1 }}>
                 <Typography variant="h3" component="div">
-                  {latestEvaluation?.overallScore?.toFixed(1) || 'N/A'}
+                  {typeof latestEvaluation?.overallScore === 'number'
+                    ? latestEvaluation.overallScore.toFixed(1)
+                    : 'N/A'}
                 </Typography>
                 <Typography variant="h6" color="text.secondary" sx={{ mb: 0.5, ml: 1 }}>
                   /10
                 </Typography>
               </Box>
-              {latestEvaluation?.overallScore && previousEvaluation?.overallScore && (
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {getScoreTrend(
-                    latestEvaluation.overallScore,
-                    previousEvaluation.overallScore
-                  )?.direction === 'up' ? (
-                    <TrendingUpIcon color="success" />
-                  ) : (
-                    <TrendingDownIcon color="error" />
-                  )}
-                  <Typography
-                    variant="body2"
-                    color={
-                      getScoreTrend(
-                        latestEvaluation.overallScore,
-                        previousEvaluation.overallScore
-                      )?.direction === 'up'
-                        ? 'success.main'
-                        : 'error.main'
-                    }
-                    sx={{ ml: 0.5 }}
-                  >
+              {typeof latestEvaluation?.overallScore === 'number' &&
+                typeof previousEvaluation?.overallScore === 'number' && (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {getScoreTrend(
                       latestEvaluation.overallScore,
                       previousEvaluation.overallScore
-                    )?.value}{' '}
-                    points since last evaluation
-                  </Typography>
-                </Box>
-              )}
+                    )?.direction === 'up' ? (
+                      <TrendingUpIcon color="success" />
+                    ) : (
+                      <TrendingDownIcon color="error" />
+                    )}
+                    <Typography
+                      variant="body2"
+                      color={
+                        getScoreTrend(
+                          latestEvaluation.overallScore,
+                          previousEvaluation.overallScore
+                        )?.direction === 'up'
+                          ? 'success.main'
+                          : 'error.main'
+                      }
+                      sx={{ ml: 0.5 }}
+                    >
+                      {getScoreTrend(
+                        latestEvaluation.overallScore,
+                        previousEvaluation.overallScore
+                      )?.value}{' '}
+                      points since last evaluation
+                    </Typography>
+                  </Box>
+                )}
             </CardContent>
           </Card>
         </Grid>
@@ -212,7 +215,7 @@ const Dashboard = () => {
         </Grid>
 
         {/* Latest Evaluation Details */}
-        {latestEvaluation && (
+        {latestEvaluation && latestEvaluation.scores && (
           <Grid item xs={12}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
@@ -230,10 +233,12 @@ const Dashboard = () => {
                         <Typography variant="subtitle1">
                           {category.charAt(0).toUpperCase() + category.slice(1)}
                         </Typography>
-                        <Typography variant="subtitle1">{score.value.toFixed(1)}/10</Typography>
+                        <Typography variant="subtitle1">
+                          {typeof score.value === 'number' ? score.value.toFixed(1) : 'N/A'}/10
+                        </Typography>
                       </Box>
                       <Rating
-                        value={score.value / 2}
+                        value={typeof score.value === 'number' ? score.value / 2 : 0}
                         precision={0.5}
                         readOnly
                         sx={{ mb: 1 }}
@@ -272,7 +277,7 @@ const Dashboard = () => {
                         </Typography>
                         <Chip
                           icon={<StarIcon />}
-                          label={`${evaluation.overallScore.toFixed(1)}/10`}
+                          label={`${typeof evaluation.overallScore === 'number' ? evaluation.overallScore.toFixed(1) : 'N/A'}/10`}
                           color={evaluation.overallScore >= 7 ? 'success' : 'default'}
                         />
                       </Box>
