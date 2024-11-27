@@ -53,6 +53,27 @@ const Dashboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  if (evaluationHistory.length === 0) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h4" sx={{ mb: 4 }}>
+          My Performance Dashboard
+        </Typography>
+        <Paper sx={{ p: 3 }}>
+          <Typography>No evaluations available yet.</Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
   const latestEvaluation = evaluationHistory[0];
   const previousEvaluation = evaluationHistory[1];
 
@@ -66,10 +87,10 @@ const Dashboard = () => {
   };
 
   const getStrengthsAndWeaknesses = (evaluation: Evaluation) => {
-    if (!evaluation) return { strengths: [], weaknesses: [] };
+    if (!evaluation?.scores) return { strengths: [], weaknesses: [] };
 
     const scores = Object.entries(evaluation.scores).map(([category, score]) => ({
-      category: category.replace('Score', ''),
+      category: category.charAt(0).toUpperCase() + category.slice(1),
       value: score.value,
     }));
 
@@ -80,21 +101,13 @@ const Dashboard = () => {
     };
   };
 
-  const { strengths, weaknesses } = latestEvaluation
-    ? getStrengthsAndWeaknesses(latestEvaluation)
-    : { strengths: [], weaknesses: [] };
+  const { strengths, weaknesses } = getStrengthsAndWeaknesses(latestEvaluation);
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 4 }}>
         My Performance Dashboard
       </Typography>
-
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
 
       <Grid container spacing={3}>
         {/* Overall Score Card */}
@@ -106,13 +119,13 @@ const Dashboard = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 1 }}>
                 <Typography variant="h3" component="div">
-                  {latestEvaluation?.overallScore.toFixed(1) || 'N/A'}
+                  {latestEvaluation?.overallScore?.toFixed(1) || 'N/A'}
                 </Typography>
                 <Typography variant="h6" color="text.secondary" sx={{ mb: 0.5, ml: 1 }}>
                   /10
                 </Typography>
               </Box>
-              {latestEvaluation && previousEvaluation && (
+              {latestEvaluation?.overallScore && previousEvaluation?.overallScore && (
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   {getScoreTrend(
                     latestEvaluation.overallScore,
@@ -215,7 +228,7 @@ const Dashboard = () => {
                     <Box sx={{ mb: 2 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                         <Typography variant="subtitle1">
-                          {category.replace('Score', '')}
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
                         </Typography>
                         <Typography variant="subtitle1">{score.value.toFixed(1)}/10</Typography>
                       </Box>
@@ -249,8 +262,8 @@ const Dashboard = () => {
               Evaluation History
             </Typography>
             <Grid container spacing={2}>
-              {evaluationHistory.map((evaluation, index) => (
-                <Grid item xs={12} key={evaluation.id}>
+              {evaluationHistory.map((evaluation) => (
+                <Grid item xs={12} key={evaluation._id}>
                   <Card variant="outlined">
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>

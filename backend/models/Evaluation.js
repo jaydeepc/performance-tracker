@@ -12,38 +12,84 @@ const evaluationSchema = new mongoose.Schema({
         required: true
     },
     scores: {
-        discoveryScore: {
-            type: String,
-            required: true
+        discovery: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         },
-        specificationScore: {
-            type: String,
-            required: true
+        specification: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         },
-        roadmapScore: {
-            type: String,
-            required: true
+        roadmap: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         },
-        deliveryScore: {
-            type: String,
-            required: true
+        delivery: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         },
-        analyticsScore: {
-            type: String,
-            required: true
+        analytics: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         },
-        communicationScore: {
-            type: String,
-            required: true
+        communication: {
+            value: {
+                type: Number,
+                required: true
+            },
+            qualitative: {
+                type: String,
+                required: true
+            }
         }
     },
     overallScore: {
+        type: Number,
+        required: true
+    },
+    comments: {
         type: String,
         required: true
     },
     period: {
-        type: Date,
-        default: Date.now
+        startDate: {
+            type: Date,
+            required: true
+        },
+        endDate: {
+            type: Date,
+            required: true
+        }
     }
 }, {
     timestamps: true

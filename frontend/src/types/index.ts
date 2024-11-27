@@ -14,7 +14,7 @@ export interface EvaluationScore {
 }
 
 export interface Evaluation {
-  id: string;
+  _id: string;
   userId: string;
   evaluatorId: string;
   period: {
@@ -22,12 +22,12 @@ export interface Evaluation {
     endDate: string;
   };
   scores: {
-    discoveryScore: EvaluationScore;
-    specificationScore: EvaluationScore;
-    roadmapScore: EvaluationScore;
-    deliveryScore: EvaluationScore;
-    analyticsScore: EvaluationScore;
-    communicationScore: EvaluationScore;
+    discovery: EvaluationScore;
+    specification: EvaluationScore;
+    roadmap: EvaluationScore;
+    delivery: EvaluationScore;
+    analytics: EvaluationScore;
+    communication: EvaluationScore;
   };
   overallScore: number;
   comments: string;

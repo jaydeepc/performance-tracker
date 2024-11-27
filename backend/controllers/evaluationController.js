@@ -18,12 +18,18 @@ const hasCurrentMonthEvaluation = async (userId) => {
     return evaluation;
 };
 
+// Helper function to calculate overall score
+const calculateOverallScore = (scores) => {
+    const values = Object.values(scores).map(score => score.value);
+    return values.reduce((acc, val) => acc + val, 0) / values.length;
+};
+
 // @desc    Create new evaluation
 // @route   POST /api/evaluations
 // @access  Private/Manager
 const createEvaluation = async (req, res) => {
     try {
-        const { userId, scores, overallScore } = req.body;
+        const { userId, scores, comments, period } = req.body;
 
         // Check if user exists
         const user = await User.findById(userId);
@@ -49,12 +55,17 @@ const createEvaluation = async (req, res) => {
             });
         }
 
+        // Calculate overall score
+        const overallScore = calculateOverallScore(scores);
+
         // Create evaluation
         const evaluation = await Evaluation.create({
             userId,
             evaluatorId: req.user._id,
             scores,
-            overallScore
+            overallScore,
+            comments,
+            period
         });
 
         const populatedEvaluation = await evaluation.populate('userId', 'name email');
@@ -73,7 +84,7 @@ const createEvaluation = async (req, res) => {
 };
 
 // @desc    Get evaluations by user ID
-// @route   GET /api/evaluations/:userId
+// @route   GET /api/evaluations/user/:userId
 // @access  Private
 const getEvaluationsByUserId = async (req, res) => {
     try {
@@ -153,9 +164,20 @@ const updateEvaluation = async (req, res) => {
             });
         }
 
-        const { scores, overallScore } = req.body;
-        evaluation.scores = scores || evaluation.scores;
-        evaluation.overallScore = overallScore || evaluation.overallScore;
+        const { scores, comments, period } = req.body;
+        
+        if (scores) {
+            evaluation.scores = scores;
+            evaluation.overallScore = calculateOverallScore(scores);
+        }
+        
+        if (comments) {
+            evaluation.comments = comments;
+        }
+        
+        if (period) {
+            evaluation.period = period;
+        }
 
         const updatedEvaluation = await evaluation.save();
         await updatedEvaluation.populate('userId', 'name email');
