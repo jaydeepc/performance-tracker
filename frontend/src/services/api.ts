@@ -1,7 +1,13 @@
 import axios from 'axios';
 
+// In development, we use the proxy setup which forwards /api to localhost:5000
+// In production, we use the full URL from environment variable
+const baseURL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_API_URL 
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {
